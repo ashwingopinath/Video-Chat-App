@@ -1,97 +1,92 @@
-import os
-from pyfiglet import Figlet
-os.system("clear")
-pyf = Figlet(font='puffy')
-a = pyf.renderText("UDP Chat App with Multi-Threading")
-os.system("tput setaf 3")
-print(a)
-import socket, cv2, pickle, struct, threading, time, pyaudio # Socket Create
-s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)# Socket Accept
-def sender():
- time.sleep(15)
- host_name  = socket.gethostname()
- host_ip = socket.gethostbyname(host_name)
- print('Host IP:',host_ip)
- port = 9999
- socket_address = (host_ip,port)# Socket Bind
- s.bind(socket_address)# Socket Listen
- s.listen(5)
- print("Listening at:",socket_address)
- while True:
-  client_socket,addr = s.accept()
-  print('Connection to:',addr)
-  if client_socket:
-   vid = cv2.VideoCapture(0)
-  
-   while(vid.isOpened()):
-    ret,image = vid.read()
-    img_serialize = pickle.dumps(image)
-    message = struct.pack("Q",len(img_serialize))+img_serialize
-    client_socket.sendall(message)
-   
-    cv2.imshow('Video from server', image)
-    key = cv2.waitKey(10) 
-    if key ==13:
-     client_socket.close()#Audio
-chunk = 1024
-FORMAT = pyaudio.paInt16
-CHANNELS = 1
-RATE = 44100
-p = pyaudio.PyAudio()
-stream = p.open(format = FORMAT,
-                channels = CHANNELS,
-                rate = RATE,
-                input = True,
-                frames_per_buffer = chunk)#Audio Socket Initialization
-audioSocket = socket.socket()
-port1 = 5000
-audioSocket.bind(('10.42.0.1',port1))
-audioSocket.listen(5)
-cAudio, addr = audioSocket.accept()
+import socket
+import cv2
+import pickle
+import struct
+import threading
+import time
 
-def recordAudio():
-    time.sleep(5)
-    while True:
-        data = stream.read(chunk)
-        if data:
-            cAudio.sendall(data)
-            
-def rcvAudio():
-     while True:
-          audioData = audioSocket.recv(size)
-          stream.write(audioData)
-          
-def connect_server():
- host_ip = '<IP>' 
- port = 1234
- s.connect((host_ip,port)) 
- data = b""
- metadata_size = struct.calcsize("Q")
- while True:
-  while len(data) < metadata_size:
-   packet = s.recv(4*1024) 
-   if not packet: break
-   data+=packet
-  packed_msg_size = data[:metadata_size]
-  data = data[metadata_size:]
-  msg_size = struct.unpack("Q",packed_msg_size)[0]
- 
-  while len(data) < msg_size:
-   data += s.recv(4*1024)
-  frame_data = data[:msg_size]
-  data  = data[msg_size:]
-  frame = pickle.loads(frame_data)
-  cv2.imshow("Receiving Video",frame)
-  key = cv2.waitKey(10) 
-  if key  == 13:
-   break
- s.close()
- 
-x1 = threading.Thread(target = sender)
-x2 = threading.Thread(target = connect_server)
-x3 = threading.Thread(target = recordAudio)
-x4 = threading.Thread(target = rcvAudio)# start a thread
+def sending(port, ip) :
+    # Creating the socket
+    s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+
+    # Getting the IP Address of localhost
+    hostName = socket.gethostname()
+    hostIP = socket.gethostbyname(hostName)
+    hostIP = ip
+
+    print(f'Server hosted at : {hostIP}:{port}')
+
+    # Binding the socket with IP and Port
+    s.bind((hostIP, port))
+    s.listen(5)
+
+    while True :
+        # Accepting connection from clients
+        # Here c is the client socket
+        c, addr = s.accept()
+        print(f'{addr} joined')
+
+        if c :
+            # Capturing video
+            vid = cv2.VideoCapture(0)
+
+            while (vid.isOpened()) :
+                ret, img = vid.read()
+
+                # Serializing the image (We can only send data in byte form)
+                img_serialized = pickle.dumps(img)
+
+                message = struct.pack("Q",len(img_serialized))+img_serialized
+                c.sendall(message)
+                    
+
+
+def receive(port, ip) :
+    # Defining socket
+    s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+
+    while True :
+        try :
+            # Connecting to the server
+            s.connect((ip, port))
+            break
+        except :
+            continue
+
+    print('Connection Established')
+
+    # The received data is stored here
+    data = b""
+    metadata_size = struct.calcsize("Q")
+
+    while True :
+        while len(data) < metadata_size:
+            packet = s.recv(4*1024) 
+            if not packet:
+                break
+            data+=packet
+        
+        packed_msg_size = data[:metadata_size]
+        data = data[metadata_size:]
+        msg_size = struct.unpack("Q",packed_msg_size)[0]
+        
+        while len(data) < msg_size:
+            data += s.recv(4*1024)
+        frame_data = data[:msg_size]
+        data  = data[msg_size:]
+        frame = pickle.loads(frame_data)
+
+        cv2.imshow("Receiving Video from B",frame)
+        cv2.waitKey(10)
+
+YourIP = input('Enter your IP : ')
+YourPort = int(input('Enter your port : '))
+RecvIP = input('Enter sender IP : ')
+RecvPort = int(input('Enter sender port : '))
+
+
+x1 = threading.Thread(target=sending, args=(YourPort,YourIP,))
+x2 = threading.Thread(target=receive, args=(RecvPort,RecvIP,))
+
 x1.start()
 x2.start()
-x3.start()
-x4.start()
