@@ -64,7 +64,7 @@ def receive(port, ip) :
             packet = s.recv(4*1024) 
             if not packet:
                 break
-            data+=packet
+            data += packet
         
         packed_msg_size = data[:metadata_size]
         data = data[metadata_size:]
