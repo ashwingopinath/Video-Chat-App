@@ -64,12 +64,15 @@ def output():
         # frame_data = data[:msg_size]
         # data = data[msg_size:]
         # frame = pickle.loads(frame_data)
+        threadNo = recvall(ClientSocket, 16).decode("utf-8")
         length = recvall(ClientSocket, 16).decode("utf-8")
+        print("length:", length)
         # print("length:", length)
         stringData = recvall(ClientSocket, int(length))
         data = np.fromstring(stringData, dtype="uint8")
+        print("data:", data)
         imgdec = cv2.imdecode(data, cv2.IMREAD_COLOR)
-        cv2.imshow("Thread B", imgdec)
+        cv2.imshow("Thread " + threadNo, imgdec)
         cv2.waitKey(1)
         
         # res = ClientSocket.recv(1024)

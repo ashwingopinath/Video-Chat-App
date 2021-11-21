@@ -7,7 +7,7 @@ import cv2
 
 # from client import ClientSocket
 
-ServerSocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+ServerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host_name = socket.gethostname()
 host_ip = socket.gethostbyname(host_name)
 print("HOST IP:", host_ip)
@@ -67,8 +67,14 @@ def threaded_client(connection, thread):
         
         for i in range(ThreadCount):
             (client, threadNo) = threads[i]
+            # print("thread:", i+1)
+            # print("threadNo:", threadNo)
+            
+            # if thread != threadNo:
+            client.sendall(str.encode(str(thread).ljust(16))) # New
             client.sendall(length)
             client.sendall(stringData)
+        
             # client.sendall(msg)
         
             # cv2.imshow("Thread " + str(thread), img)
