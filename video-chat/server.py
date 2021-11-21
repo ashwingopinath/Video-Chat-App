@@ -5,18 +5,24 @@ import pickle
 import struct
 import cv2
 
-ServerSocket = socket.socket()
-host = '127.0.0.1'
-port = 1236
+ServerSocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+host_name = socket.gethostname()
+host_ip = socket.gethostbyname(host_name)
+print("HOST IP:", host_ip)
+# host = '127.0.0.1'
+host = host_ip
+port = 9999
+socket_address = (host, port)
 ThreadCount = 0
 threads = []
 try:
-    ServerSocket.bind((host, port))
+    ServerSocket.bind(socket_address)
 except socket.error as e:
     print(str(e))
 
 print('Waitiing for a Connection..')
 ServerSocket.listen(5)
+print("Listening at:",socket_address) # Socket Accept
 
 
 def threaded_client(connection, thread):

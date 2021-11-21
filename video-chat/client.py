@@ -5,9 +5,11 @@ import cv2
 # from server import Client
 import pickle
 
-ClientSocket = socket.socket()
-host = '127.0.0.1'
-port = 1236
+ClientSocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+host = input("Enter server IP: ")
+port = int(input("Enter port: "))
+# host = '127.0.0.1'
+# port = 1236
 
 print('Waiting for connection')
 try:
