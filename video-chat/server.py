@@ -29,17 +29,14 @@ def threaded_client(connection, thread):
     connection.sendall(str.encode('\n\nWelcome to the Server\n\n'))
     while True:
         if connection:
-            vid = cv2.VideoCapture(0)
+            # vid = cv2.VideoCapture(0)
+            msg = connection.recv(4*1024)
         else:
             break
         
-        while(vid.isOpened()):
-            ret, img = vid.read()
-            img_serialize = pickle.dumps(img)
-            msg = struct.pack("Q", len(img_serialize)) + img_serialize
-            for i in range(ThreadCount):
-                (client, threadNo) = threads[i]
-                client.sendall(msg)
+        for i in range(ThreadCount):
+            (client, threadNo) = threads[i]
+            client.sendall(msg)
         
             # cv2.imshow("Thread " + str(thread), img)
     
