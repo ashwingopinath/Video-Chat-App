@@ -6,15 +6,24 @@ import random
 # from server import Client
 import pickle
 import numpy as np
-
+import argparse
 import pyshine as ps
 
 ClientSocket1 = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 ClientSocket2 = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 
-host = input("Enter server IP: ")
-port1 = int(input("Enter video port: "))
-port2 = int(input("Enter audio port: "))
+parser = argparse.ArgumentParser(description='Multi-threaded Video Chat App')
+parser.add_argument("--host", type=str, help="Server IP Address")
+parser.add_argument("--vid_port", type=str, help="Server Video Port")
+parser.add_argument("--aud_port", type=str, help="Server Audio Port")
+args = parser.parse_args()
+
+host = args.host
+port1 = int(args.vid_port)
+port2 = int(args.aud_port)
+# host = input("Enter server IP: ")
+# port1 = int(input("Enter video port: "))
+# port2 = int(input("Enter audio port: "))
 # host = '127.0.0.1'
 # port = 1236
 

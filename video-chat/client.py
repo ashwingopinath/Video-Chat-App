@@ -3,15 +3,18 @@ import struct
 import threading
 import cv2
 import random
-# from server import Client
 import pickle
 import numpy as np
+import argparse
+
+parser = argparse.ArgumentParser(description='Multi-threaded Video Chat App')
+parser.add_argument("--host", type=str, help="Server IP Address")
+parser.add_argument("--port", type=str, help="Server Port")
+args = parser.parse_args()
 
 ClientSocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-host = input("Enter server IP: ")
-port = int(input("Enter port: "))
-# host = '127.0.0.1'
-# port = 1236
+host = args.host
+port = int(args.port)
 
 print('Waiting for connection')
 try:
@@ -47,16 +50,15 @@ def output():
     while True:
         threadNo = recvall(ClientSocket, 16).decode("utf-8")
         length = recvall(ClientSocket, 16).decode("utf-8")
-        #print("length:", length)
         stringData = recvall(ClientSocket, int(length))
         data = np.fromstring(stringData, dtype="uint8")
-        #print("data:", data)
         imgdec = cv2.imdecode(data, cv2.IMREAD_COLOR)
-        cv2.imshow("Thread " + threadNo, imgdec)
-        q=cv2.waitKey(1)
+        cv2.imshow("Client " + threadNo, imgdec)
+        q = cv2.waitKey(1)
         if q == ord("q"):
             cv2.destroyAllWindows()
-            ClientSocket.close()
+            break
+    ClientSocket.close()
         
 Response = ClientSocket.recv(1024)
 print(Response.decode('utf-8'))
