@@ -69,11 +69,11 @@ def threaded_client(connection, thread):
             (client, threadNo) = threads[i]
             # print("thread:", i+1)
             # print("threadNo:", threadNo)
-            
-            # if thread != threadNo:
-            client.sendall(str.encode(str(thread).ljust(16))) # New
-            client.sendall(length)
-            client.sendall(stringData)
+
+            if thread != threadNo:
+                client.sendall(str.encode(str(thread).ljust(16))) # New
+                client.sendall(length)
+                client.sendall(stringData)
         
             # client.sendall(msg)
         
