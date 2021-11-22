@@ -29,11 +29,8 @@ def inputs():
             res, imgenc = cv2.imencode(".jpg", img, encode_params)
             data = np.array(imgenc)
             stringData = data.tostring()
-            # img_serialized = pickle.dumps(img)
-            # msg = struct.pack("Q", len(img_serialized)) + img_serialized
             ClientSocket.sendall(str.encode(str(len(stringData)).ljust(16)))
             ClientSocket.sendall(stringData)
-            # ClientSocket.sendall(msg)
 
 def recvall(sock, count):
     buf = b''
@@ -46,28 +43,10 @@ def recvall(sock, count):
     return buf
 
 def output():
-    # data = b""
-    # metadata_size = struct.calcsize("Q")
-    # print("metadata_size:", metadata_size)
     while True:
-        # while len(data) < metadata_size:
-        #     packet = ClientSocket.recv(4*1024)
-        #     if not packet:
-        #         break
-        #     data += packet
-        # packed_msg_size = data[:metadata_size]
-        # data = data[metadata_size:]
-        # msg_size = struct.unpack("Q", packed_msg_size)[0]
-
-        # while len(data) < msg_size:
-        #     data += ClientSocket.recv(4*1024)
-        # frame_data = data[:msg_size]
-        # data = data[msg_size:]
-        # frame = pickle.loads(frame_data)
         threadNo = recvall(ClientSocket, 16).decode("utf-8")
         length = recvall(ClientSocket, 16).decode("utf-8")
         print("length:", length)
-        # print("length:", length)
         stringData = recvall(ClientSocket, int(length))
         data = np.fromstring(stringData, dtype="uint8")
         print("data:", data)
@@ -75,20 +54,10 @@ def output():
         cv2.imshow("Thread " + threadNo, imgdec)
         cv2.waitKey(1)
         
-        # res = ClientSocket.recv(1024)
-        # print(res.decode('utf-8'))
-        # print("Say something: ")
-
 Response = ClientSocket.recv(1024)
 print(Response.decode('utf-8'))
-# while True:
-#     Response = ClientSocket.recv(1024)
-#     print(Response.decode('utf-8'))
-#     Input = input('Say Something: ')
-#     ClientSocket.send(str.encode(Input))
 
 inp = threading.Thread(target = inputs)
 out = threading.Thread(target = output)
 inp.start()
 out.start()
-# ClientSocket.close()
