@@ -20,7 +20,7 @@ In this project, we propose a video chat application that works over a local net
 #### Run Client:
 > python3 video-chat/client.py
 
->--host <ip address of server> --port 9999
+>--host < ip address of server > --port 9999
 
  
   
@@ -31,4 +31,4 @@ In this project, we propose a video chat application that works over a local net
 #### Run Client:
 > python3 audio-video-chat/client.py
 
->-- host <ip address of server> --vid_port 9999 --aud_port 8003
+>-- host < ip address of server > --vid_port 9999 --aud_port 8003
