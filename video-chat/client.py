@@ -29,8 +29,9 @@ def inputs():
             res, imgenc = cv2.imencode(".jpg", img, encode_params)
             data = np.array(imgenc)
             stringData = data.tostring()
-            ClientSocket.sendall(str.encode(str(len(stringData)).ljust(16)))
-            ClientSocket.sendall(stringData)
+            if ClientSocket:
+                ClientSocket.sendall(str.encode(str(len(stringData)).ljust(16)))
+                ClientSocket.sendall(stringData)
 
 def recvall(sock, count):
     buf = b''
@@ -46,13 +47,16 @@ def output():
     while True:
         threadNo = recvall(ClientSocket, 16).decode("utf-8")
         length = recvall(ClientSocket, 16).decode("utf-8")
-        print("length:", length)
+        #print("length:", length)
         stringData = recvall(ClientSocket, int(length))
         data = np.fromstring(stringData, dtype="uint8")
-        print("data:", data)
+        #print("data:", data)
         imgdec = cv2.imdecode(data, cv2.IMREAD_COLOR)
         cv2.imshow("Thread " + threadNo, imgdec)
-        cv2.waitKey(1)
+        q=cv2.waitKey(1)
+        if q == ord("q"):
+            cv2.destroyAllWindows()
+            ClientSocket.close()
         
 Response = ClientSocket.recv(1024)
 print(Response.decode('utf-8'))

@@ -52,9 +52,10 @@ def threaded_client(connection, thread):
         for i in range(ThreadCount):
             (client, threadNo) = threads[i]
             if thread != threadNo:
-                client.sendall(str.encode(str(thread).ljust(16))) # New
-                client.sendall(length)
-                client.sendall(stringData)    
+                if client:
+                    client.sendall(str.encode(str(thread).ljust(16))) # New
+                    client.sendall(length)
+                    client.sendall(stringData)    
     connection.close()
 
 def threaded_audio(connection, thread):
@@ -67,9 +68,10 @@ def threaded_audio(connection, thread):
         for i in range(ThreadCount_aud):
             (client, threadNo) = threads_aud[i]
             if thread != threadNo:
-                client.sendall(str.encode(str(thread).ljust(16)))
-                client.sendall(length)
-                client.sendall(frame_data)
+                if client:
+                    client.sendall(str.encode(str(thread).ljust(16)))
+                    client.sendall(length)
+                    client.sendall(frame_data)
     connection.close() 
 
 while True:

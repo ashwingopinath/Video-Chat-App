@@ -35,8 +35,9 @@ def inputs():
             res, imgenc = cv2.imencode(".jpg", img, encode_params) #vid
             data = np.array(imgenc) #vid
             stringData = data.tostring() #vid
-            ClientSocket1.sendall(str.encode(str(len(stringData)).ljust(16)))
-            ClientSocket1.sendall(stringData)
+            if ClientSocket1:
+                ClientSocket1.sendall(str.encode(str(len(stringData)).ljust(16)))
+                ClientSocket1.sendall(stringData)
 
 def audio_input():
     mode =  'send'
@@ -47,9 +48,10 @@ def audio_input():
         aud = pickle.dumps(frame) #audio
 
         length = str.encode(str(len(aud)).ljust(16))
-        ClientSocket2.sendall(length)
-        ClientSocket2.sendall(aud)
-  
+        if ClientSocket2:
+            ClientSocket2.sendall(length)
+            ClientSocket2.sendall(aud)
+      
 
 def recvall(sock, count):
     buf = b''
@@ -65,10 +67,10 @@ def output():
     while True:
         threadNo = recvall(ClientSocket1, 16).decode("utf-8")
         length = recvall(ClientSocket1, 16).decode("utf-8")
-        print("length:", length)
+        #print("length:", length)
         stringData = recvall(ClientSocket1, int(length))
         data = np.fromstring(stringData, dtype="uint8")
-        print("data:", data)
+        #print("data:", data)
         imgdec = cv2.imdecode(data, cv2.IMREAD_COLOR)
         cv2.imshow("Thread " + threadNo, imgdec)
         cv2.waitKey(1)
